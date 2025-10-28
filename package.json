@@ -1,0 +1,21 @@
+{
+  "name": "pms-system",
+  "version": "1.0.0",
+  "description": "Sistema completo de gestión de propiedades con panel web",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "setup": "cd backend && node scripts/setupDatabase.js",
+    "seed": "cd backend && node scripts/seedDatabase.js",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": ["pms", "hotel", "management", "dashboard", "react", "nodejs"],
+  "author": "PMS Development Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}
