@@ -43,6 +43,14 @@ app.options('*', cors({
 }));
 
 // ... resto de middlewares y rutas
+// Importar y usar los routers para las rutas API
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/alojamientos', require('./routes/alojamientos'));
+app.use('/api/admin', require('./routes/admin'));
+app.use('/api/colaboradores', require('./routes/colaboradores'));
+app.use('/api/huespedes', require('./routes/huespedes'));
+app.use('/api/ocupacion', require('./routes/ocupacion'));
 // e.g. app.use('/api/auth', authRouter);
 // Endpoint de salud para verificar el estado del backend
 app.get('/api/health', (req, res) => {
