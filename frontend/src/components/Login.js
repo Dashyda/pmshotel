@@ -18,7 +18,7 @@ import {
   Hotel as HotelIcon,
   Login as LoginIcon
 } from '@mui/icons-material';
-import { DEFAULT_BRANDING, loadBranding, subscribeBranding } from './utils/branding';
+import { DEFAULT_BRANDING, loadBranding, subscribeBranding } from '../utils/branding';
 const Login = ({ onLogin, loading: appLoading = false }) => {
   const [formData, setFormData] = useState({
     email: '',
