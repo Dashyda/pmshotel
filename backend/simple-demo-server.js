@@ -3,7 +3,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const MAINTENANCE_AREA_TYPES = ['room', 'bathroom', 'common'];
 const MAINTENANCE_AREA_LABELS = {
   room: 'Habitación',
