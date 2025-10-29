@@ -45,3 +45,8 @@ app.options('*', cors({
 // ... resto de middlewares y rutas
 // e.g. app.use('/api/auth', authRouter);
 // inicio del servidor, socket.io, etc.
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Servidor backend escuchando en puerto ${PORT}`);
+});
