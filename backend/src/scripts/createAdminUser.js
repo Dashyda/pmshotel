@@ -1,75 +1,78 @@
-const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const DEFAULT_ORGANIZATION = 'Organización Principal';
-const DEFAULT_ROLE = 'Super Admin';
-
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@pms.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const DEFAULT_ROLE = process.env.DEFAULT_ROLE || 'SUPER_ADMIN';
 
-async function ensureOrganization(connection) {
-  const [rows] = await connection.query(
-    'SELECT id FROM organizaciones WHERE nombre = ? LIMIT 1',
-    [DEFAULT_ORGANIZATION]
-  );
-
-  if (rows.length > 0) {
-    return rows[0].id;
+// Crear pool con la misma detección que en config/database.js
+function getPoolConfig() {
+  const dbUrl = process.env.DATABASE_URL || process.env.RAILWAY_DATABASE_URL || process.env.RAILWAY_POSTGRESQL_URL;
+  if (dbUrl) {
+    return { connectionString: dbUrl, ssl: { rejectUnauthorized: false } };
   }
-
-  const [result] = await connection.query(
-    `INSERT INTO organizaciones (nombre, descripcion, email, activo)
-     VALUES (?, 'Organización creada automáticamente', ?, TRUE)`,
-    [DEFAULT_ORGANIZATION, ADMIN_EMAIL]
-  );
-
-  console.log(`🏢 Organización creada: ${DEFAULT_ORGANIZATION} (ID: ${result.insertId})`);
-  return result.insertId;
+  const host = process.env.DB_HOST || process.env.PGHOST || 'localhost';
+  const port = Number(process.env.DB_PORT || process.env.PGPORT || 5432);
+  const user = process.env.DB_USER || process.env.PGUSER || 'postgres';
+  const password = process.env.DB_PASSWORD || process.env.PGPASSWORD || '';
+  const database = process.env.DB_NAME || process.env.PGDATABASE || 'pms_system';
+  return { host, port, user, password, database, ssl: { rejectUnauthorized: false } };
 }
 
-async function ensureSuperAdminRole(connection) {
-  const [rows] = await connection.query(
-    'SELECT id FROM roles WHERE nivel_acceso = "SUPER_ADMIN" LIMIT 1'
+const pool = new Pool(getPoolConfig());
+
+async function ensureOrganization(client) {
+  // Ejemplo: aseguramos una organización por defecto (ajusta a tu esquema real)
+  const res = await client.query(
+    `INSERT INTO organizaciones (nombre, activo)
+     VALUES ($1, TRUE)
+     ON CONFLICT (nombre) DO UPDATE SET activo = TRUE
+     RETURNING id`,
+    ['Organización Principal']
   );
-
-  if (rows.length > 0) {
-    return rows[0].id;
-  }
-
-  const permisos = JSON.stringify(['*']);
-  const [result] = await connection.query(
-    `INSERT INTO roles (nombre, descripcion, permisos, nivel_acceso, activo)
-     VALUES (?, 'Rol con acceso total creado automáticamente', ?, 'SUPER_ADMIN', TRUE)`,
-    [DEFAULT_ROLE, permisos]
-  );
-
-  console.log(`🔐 Rol creado: ${DEFAULT_ROLE} (ID: ${result.insertId})`);
-  return result.insertId;
+  return res.rows[0].id;
 }
 
-async function upsertAdminUser(connection, organizationId, roleId) {
+async function ensureSuperAdminRole(client) {
+  const permisos = JSON.stringify({ full: true });
+  const resSelect = await client.query(
+    'SELECT id FROM roles WHERE nombre = $1 LIMIT 1',
+    [DEFAULT_ROLE]
+  );
+  if (resSelect.rows.length > 0) return resSelect.rows[0].id;
+
+  const res = await client.query(
+    `INSERT INTO roles (nombre, descripcion, permisos, codigo, activo)
+     VALUES ($1, $2, $3, $4, TRUE)
+     RETURNING id`,
+    [DEFAULT_ROLE, 'Rol con acceso total creado automáticamente', permisos, 'SUPER_ADMIN']
+  );
+  return res.rows[0].id;
+}
+
+async function upsertAdminUser(client, organizationId, roleId) {
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12);
 
-  const [existing] = await connection.query(
-    'SELECT id FROM usuarios WHERE email = ? OR username = ? LIMIT 1',
+  const resExisting = await client.query(
+    'SELECT id FROM usuarios WHERE email = $1 OR username = $2 LIMIT 1',
     [ADMIN_EMAIL, ADMIN_USERNAME]
   );
 
-  if (existing.length > 0) {
-    await connection.query(
+  if (resExisting.rows.length > 0) {
+    const id = resExisting.rows[0].id;
+    await client.query(
       `UPDATE usuarios
-         SET password_hash = ?, rol_id = ?, organizacion_id = ?, activo = TRUE
-       WHERE id = ?`,
-      [passwordHash, roleId, organizationId, existing[0].id]
+         SET password_hash = $1, rol_id = $2, organizacion_id = $3, activo = TRUE
+       WHERE id = $4`,
+      [passwordHash, roleId, organizationId, id]
     );
-
-    console.log(`✅ Usuario administrador actualizado (ID: ${existing[0].id})`);
-    return existing[0].id;
+    console.log(`✅ Usuario administrador actualizado (ID: ${id})`);
+    return id;
   }
 
-  const [result] = await connection.query(
+  const res = await client.query(
     `INSERT INTO usuarios (
        organizacion_id,
        departamento_id,
@@ -81,41 +84,28 @@ async function upsertAdminUser(connection, organizationId, roleId) {
        apellidos,
        telefono,
        activo
-     ) VALUES (?, NULL, ?, ?, ?, ?, 'Administrador', 'Principal', NULL, TRUE)` ,
+     ) VALUES ($1, NULL, $2, $3, $4, $5, 'Administrador', 'Principal', NULL, TRUE)
+     RETURNING id`,
     [organizationId, roleId, ADMIN_USERNAME, ADMIN_EMAIL, passwordHash]
   );
 
-  console.log(`✅ Usuario administrador creado (ID: ${result.insertId})`);
-  return result.insertId;
+  console.log(`✅ Usuario administrador creado (ID: ${res.rows[0].id})`);
+  return res.rows[0].id;
 }
 
 async function createAdminUser() {
   console.log('🔐 Creando/actualizando usuario super administrador...');
 
-  const DB_HOST = process.env.DB_HOST || process.env.MYSQLHOST || process.env.MYSQL_HOST || process.env.RAILWAY_PRIVATE_DOMAIN || 'localhost';
-  const rawPort = process.env.DB_PORT || process.env.MYSQLPORT || process.env.MYSQL_PORT || process.env.MYSQL_TCP_PORT || '3306';
-  const DB_PORT = Number.parseInt(rawPort, 10) || 3306;
-  const DB_USER = process.env.DB_USER || process.env.MYSQLUSER || process.env.MYSQL_USER || process.env.MYSQLUSERNAME || 'root';
-  const DB_PASSWORD = process.env.DB_PASSWORD || process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || '';
-  const DB_NAME = process.env.DB_NAME || process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'pms_system';
-
-  const connection = await mysql.createConnection({
-    host: DB_HOST,
-    port: DB_PORT,
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME,
-    multipleStatements: true
-  });
+  const client = await pool.connect();
 
   try {
-    await connection.beginTransaction();
+    await client.query('BEGIN');
 
-    const organizationId = await ensureOrganization(connection);
-    const roleId = await ensureSuperAdminRole(connection);
-    const userId = await upsertAdminUser(connection, organizationId, roleId);
+    const organizationId = await ensureOrganization(client);
+    const roleId = await ensureSuperAdminRole(client);
+    const userId = await upsertAdminUser(client, organizationId, roleId);
 
-    await connection.commit();
+    await client.query('COMMIT');
 
     console.log('\n🎉 Listo. Puedes iniciar sesión con:');
     console.log(`   Usuario/Email: ${ADMIN_EMAIL}`);
@@ -124,16 +114,15 @@ async function createAdminUser() {
     console.log(`   ID Usuario: ${userId}`);
     console.log('\n⚠️ Recuerda cambiar esta contraseña en producción.');
   } catch (error) {
-    await connection.rollback();
+    await client.query('ROLLBACK');
     console.error('❌ No se pudo crear el usuario administrador:', error.message);
-    process.exitCode = 1;
   } finally {
-    await connection.end();
+    client.release();
+    await pool.end();
   }
 }
 
-if (require.main === module) {
-  createAdminUser();
-}
-
-module.exports = createAdminUser;
+createAdminUser().catch(err => {
+  console.error('Error script:', err);
+  process.exit(1);
+});
