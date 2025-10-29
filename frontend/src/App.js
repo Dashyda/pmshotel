@@ -3,7 +3,7 @@
 // Reemplaza la creación existente de apiClient por esto.
 
 import axios from 'axios';
-import { loadActiveTenantNamespace } from '../utils/branding';
+import { loadActiveTenantNamespace } from './utils/branding';
 
 const resolveApiBaseUrl = () => {
   const rawBase = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
