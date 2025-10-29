@@ -44,7 +44,7 @@ import {
   NoteAdd as NoteAddIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { loadBranding, subscribeBranding, DEFAULT_BRANDING } from '../utils/branding';
+import { loadBranding, subscribeBranding, DEFAULT_BRANDING } from './utils/branding';
 
 const drawerWidth = 280;
 

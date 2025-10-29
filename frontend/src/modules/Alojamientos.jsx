@@ -47,7 +47,7 @@ import {
 } from '@mui/icons-material';
 import { alojamientosAPI, colaboradoresAPI, handleAPIError } from '../services/api';
 import { loadStoredMttoReports, MTTO_REPORTS_STORAGE_KEY } from './mttoConstants';
-import { subscribeActiveTenantNamespace } from '../utils/branding';
+import { subscribeActiveTenantNamespace } from './utils/branding';
 
 const createTempId = () => `temp_${Math.random().toString(36).slice(2, 10)}`;
 

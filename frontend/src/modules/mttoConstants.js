@@ -2,7 +2,7 @@ import {
   loadActiveTenantNamespace,
   subscribeActiveTenantNamespace,
   DEFAULT_TENANT
-} from '../utils/branding';
+} from './utils/branding';
 
 export const MTTO_REPORTS_STORAGE_KEY = 'mtto_reports_data';
 export const MTTO_REPORTS_EVENT_NAME = 'mtto-reports-updated';

@@ -42,7 +42,7 @@ import {
   applyTenantBranding,
   loadDefaultBranding,
   saveDefaultBranding
-} from '../utils/branding';
+} from './utils/branding';
 import { adminAPI, getCurrentUser, handleAPIError } from '../services/api';
 
 const Administrador = () => {

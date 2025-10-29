@@ -39,7 +39,7 @@ import {
   notifyMttoReportsUpdated,
   saveMttoReports
 } from './mttoConstants';
-import { loadActiveTenantNamespace, subscribeActiveTenantNamespace, DEFAULT_TENANT } from '../utils/branding';
+import { loadActiveTenantNamespace, subscribeActiveTenantNamespace, DEFAULT_TENANT } from './utils/branding';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
