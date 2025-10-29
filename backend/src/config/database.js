@@ -23,8 +23,9 @@ if (usePg) {
     }
     // Fallback to individual PG_* vars
     return {
-      host: process.env.DB_HOST || process.env.PGHOST || 'localhost',
-      port: Number(process.env.DB_PORT || process.env.PGPORT || 5432),
+  // Railway define PGHOST y PGPORT automáticamente para la conexión remota
+  host: process.env.DB_HOST || process.env.PGHOST || 'gondola.proxy.rlwy.net',
+      port: Number(process.env.DB_PORT || process.env.PGPORT || 36212),
       user: process.env.DB_USER || process.env.PGUSER || 'postgres',
       password: process.env.DB_PASSWORD || process.env.PGPASSWORD || '',
       database: process.env.DB_NAME || process.env.PGDATABASE || 'pms_system',

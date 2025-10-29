@@ -18,9 +18,9 @@ const authMiddleware = async (req, res, next) => {
       // Verificar que el usuario existe y está activo
       const user = await database.queryOne(
         `SELECT u.*, r.nombre as rol_nombre, r.nivel_acceso, r.permisos
-         FROM usuarios u 
-         JOIN roles r ON u.rol_id = r.id 
-         WHERE u.id = ? AND u.activo = TRUE`,
+        FROM usuarios u 
+        JOIN roles r ON u.rol_id = r.id 
+        WHERE u.id = $1 AND u.activo = TRUE`,
         [decoded.userId]
       );
 
@@ -48,7 +48,7 @@ const authMiddleware = async (req, res, next) => {
 
       // Actualizar último acceso
       await database.query(
-        'UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = ?',
+        'UPDATE usuarios SET ultimo_acceso = NOW() WHERE id = $1',
         [user.id]
       );
 

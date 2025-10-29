@@ -21,7 +21,7 @@ router.get('/usuarios', async (req, res, next) => {
       JOIN roles r ON u.rol_id = r.id
       JOIN organizaciones o ON u.organizacion_id = o.id
       LEFT JOIN departamentos d ON u.departamento_id = d.id
-      WHERE u.organizacion_id = ?
+      WHERE u.organizacion_id = $1
       ORDER BY u.fecha_creacion DESC
     `, [req.user.organizacion_id]);
 
@@ -61,12 +61,12 @@ router.get('/auditoria', [
     let params = [];
 
     if (tabla) {
-      whereConditions.push('a.tabla = ?');
+      whereConditions.push(`a.tabla = $${params.length + 1}`);
       params.push(tabla);
     }
 
     if (accion) {
-      whereConditions.push('a.accion = ?');
+      whereConditions.push(`a.accion = $${params.length + 1}`);
       params.push(accion);
     }
 
@@ -79,7 +79,7 @@ router.get('/auditoria', [
       LEFT JOIN usuarios u ON a.usuario_id = u.id
       WHERE ${whereClause}
       ORDER BY a.fecha_accion DESC
-      LIMIT ? OFFSET ?
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `, [...params, parseInt(limit), parseInt(offset)]);
 
     const countResult = await database.queryOne(`
