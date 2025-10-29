@@ -1,7 +1,7 @@
 // Servicio para consumir la API externa de Railway
 const axios = require('axios');
 
-const API_BASE_URL = process.env.EXTERNAL_API_URL || 'https://pmshotel-production.up.railway.app/api';
+const API_BASE_URL = process.env.EXTERNAL_API_URL || 'https://pmshotel-production.up.railway.app';
 
 const externalApi = axios.create({
   baseURL: API_BASE_URL,
