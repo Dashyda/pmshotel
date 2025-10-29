@@ -1,3 +1,11 @@
+// Endpoint de salud para verificar el estado del backend
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'PMS Backend funcionando',
+    timestamp: new Date().toISOString()
+  });
+});
 // Archivo: backend/src/app.js
 // Añade o reemplaza el bloque de configuración de CORS cerca del inicio del archivo,
 // justo después de `app.use(express.json());` y antes de las rutas.
