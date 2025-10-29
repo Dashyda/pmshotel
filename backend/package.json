@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "pms-backend",
   "version": "1.0.0",
   "description": "Backend API para Sistema de Gestión de Propiedades (PMS) - Panel Web con SQL",
@@ -38,5 +39,25 @@
   },
   "engines": {
     "node": ">=18.0.0"
+=======
+  "name": "pms-system",
+  "version": "1.0.0",
+  "description": "Sistema completo de gestión de propiedades con panel web",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "setup": "cd backend && node scripts/setupDatabase.js",
+    "seed": "cd backend && node scripts/seedDatabase.js",
+    "build": "cd frontend && npm run build"
+  },
+  "keywords": ["pms", "hotel", "management", "dashboard", "react", "nodejs"],
+  "author": "PMS Development Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+>>>>>>> 61e66e9a6a19c549390380916ad9fd02de9864f9
   }
 }

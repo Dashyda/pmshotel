@@ -1,0 +1,41 @@
+# Node dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+frontend/build/
+frontend/dist/
+backend/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+*.env
+.env
+.env.*
+backend/.env
+frontend/.env
+backend/.env.local
+frontend/.env.local
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Coverage / reports
+coverage/
+**/coverage/
+*.lcov
+
+# Misc
+.tmp/
+*.cache
+.eslintcache
