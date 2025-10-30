@@ -1,37 +1,16 @@
-{{
-
-  "version": 2,  "version": 2,
-
-  "builds": [  "builds": [
-
-    {    {
-
-      "src": "frontend/package.json",      "src": "frontend/package.json",
-
-      "use": "@vercel/static-build"      "use": "@vercel/static-build"
-
-    }    }
-
-      "routes": [
-        { "src": "/static/(.*)", "dest": "/static/$1" },
-        { "src": "/assets/(.*)", "dest": "/assets/$1" },
-        { "src": "/favicon.ico", "dest": "/favicon.ico" },
-        { "src": "/manifest.json", "dest": "/manifest.json" },
-        // Proxy API calls to Railway backend (replace with your production backend URL)
-        { "src": "/api/(.*)", "dest": "https://pmshotel-production.up.railway.app/api/$1" },
-        // If you use socket.io on a different path, proxy it as well
-        { "src": "/socket.io/(.*)", "dest": "https://pmshotel-production.up.railway.app/socket.io/$1" },
-        // Fallback: let the SPA handle client-side routes
-        { "src": "^/(.*)$", "dest": "/index.html" }
-      ]
-
-    { "src": "/favicon.ico", "dest": "/favicon.ico" },    { "src": "/favicon.ico", "dest": "/favicon.ico" },
-
-    { "src": "/manifest.json", "dest": "/manifest.json" },    { "src": "/manifest.json", "dest": "/manifest.json" },
-
-    { "src": "^/(.*)$", "dest": "/index.html" }    { "src": "/(.*)", "dest": "/index.html" }
-
-  ]  ]
-
-}}
+{
+  "version": 2,
+  "builds": [
+    { "src": "frontend/package.json", "use": "@vercel/static-build" }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/favicon.ico", "dest": "/favicon.ico" },
+    { "src": "/manifest.json", "dest": "/manifest.json" },
+    { "src": "/api/(.*)", "dest": "https://pmshotel-production.up.railway.app/api/$1" },
+    { "src": "/socket.io/(.*)", "dest": "https://pmshotel-production.up.railway.app/socket.io/$1" },
+    { "src": "^/(.*)$", "dest": "/index.html" }
+  ]
+}
 
