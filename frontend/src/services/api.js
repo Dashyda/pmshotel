@@ -1,13 +1,15 @@
 // Archivo: frontend/src/services/api.js
-// Modifica la creación del cliente axios para habilitar withCredentials si usas cookies.
-// Reemplaza la creación existente de apiClient por esto.
-
 import axios from 'axios';
-import { loadActiveTenantNamespace } from './utils/branding';
+import { loadActiveTenantNamespace } from '../utils/branding'; // <-- ruta corregida
 
 const resolveApiBaseUrl = () => {
-  const API_BASE_URL = process.env.EXTERNAL_API_URL || 'https://pmshotel-production.up.railway.app';
-  const trimmedBase = rawBase.replace(/\/$/, '');
+  // Priorizar variables con prefijo REACT_APP_ (embed en build)
+  const rawBase =
+    process.env.REACT_APP_API_URL ||
+    process.env.EXTERNAL_API_URL ||
+    'https://pmshotel-production.up.railway.app';
+
+  const trimmedBase = String(rawBase).replace(/\/$/, '');
   if (trimmedBase.endsWith('/api')) {
     return trimmedBase;
   }
