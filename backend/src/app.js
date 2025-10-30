@@ -14,7 +14,7 @@ app.use(express.json());
 // CORS: permitir tu frontend en Vercel y localhost para desarrollo.
 // Usa la env var FRONTEND_ORIGIN para no hardcodear el dominio.
 const allowedOrigins = [
-  process.env.FRONTEND_ORIGIN || 'https://pmshotel-phi.vercel.app',
+  process.env.FRONTEND_ORIGIN || 'react-frontend-production-d83a.up.railway.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000'
 ];
